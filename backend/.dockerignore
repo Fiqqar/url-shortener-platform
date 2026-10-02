@@ -9,7 +9,6 @@ venv
 .git
 .gitignore
 .env
-node_modules
 tests
 docs
 .vscode
