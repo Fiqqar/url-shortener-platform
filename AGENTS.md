@@ -122,6 +122,14 @@ Run from repo root in PowerShell unless noted.
 - `make terraform-plan` = `terraform -chdir=infra/terraform plan`
 - `make terraform-apply` = `terraform -chdir=infra/terraform apply`
 
+### Docker
+
+- `make docker-build` / `scripts\dev.ps1 docker-build` = `docker build -t url-shortener-backend:dev backend`
+- `make up` / `scripts\dev.ps1 up` = `docker compose up -d --build`
+- `make down` / `scripts\dev.ps1 down` = `docker compose down` (never `-v`)
+- `make logs` / `scripts\dev.ps1 logs` = `docker compose logs backend --tail 50`
+- `make ps` / `scripts\dev.ps1 ps` = `docker compose ps`
+
 ## 6. Hard Rules
 
 - Do not delete working tests to make CI pass.

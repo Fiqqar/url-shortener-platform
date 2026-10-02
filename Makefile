@@ -1,4 +1,4 @@
-.PHONY: install lint test cov run redis-up redis-down
+.PHONY: install lint test cov run redis-up redis-down docker-build up down logs ps
 
 install:
 	py -3.13 -m venv backend/.venv
@@ -21,3 +21,18 @@ redis-up:
 
 redis-down:
 	docker stop url-redis
+
+docker-build:
+	docker build -t url-shortener-backend:dev backend
+
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs backend --tail 50
+
+ps:
+	docker compose ps

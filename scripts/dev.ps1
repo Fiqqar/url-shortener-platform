@@ -20,5 +20,10 @@ switch ($task) {
         if ($LASTEXITCODE -ne 0) { docker run -d --name url-redis -p 6379:6379 redis:7-alpine }
     }
     "redis-down" { docker stop url-redis }
-    default { Write-Host "Usage: scripts\dev.ps1 {install|lint|test|cov|run|redis-up|redis-down}" }
+    "docker-build" { docker build -t url-shortener-backend:dev backend }
+    "up" { docker compose up -d --build }
+    "down" { docker compose down }
+    "logs" { docker compose logs backend --tail 50 }
+    "ps" { docker compose ps }
+    default { Write-Host "Usage: scripts\dev.ps1 {install|lint|test|cov|run|redis-up|redis-down|docker-build|up|down|logs|ps}" }
 }
