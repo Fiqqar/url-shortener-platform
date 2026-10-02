@@ -1,0 +1,5 @@
+# Safe local development values. No credentials are required for this stack.
+docker_host   = "npipe:////.//pipe//docker_engine"
+backend_image = "url-shortener-backend:dev"
+redis_image   = "redis:7-alpine"
+backend_port  = 8000

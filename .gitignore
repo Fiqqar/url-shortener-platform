@@ -28,7 +28,6 @@ dist/
 *.tfstate.*
 *.tfvars
 .terraform/
-.terraform.lock.hcl
 
 # Backend progress tracker
 scripts/.backend-progress.txt
@@ -49,3 +48,12 @@ Desktop.ini
 .DS_Store
 .ruff_cache/
 .mypy_cache/
+scripts/.terraform-progress.txt
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+tfplan
+*.tfplan
