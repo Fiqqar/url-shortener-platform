@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node (frontend later)
+node_modules/
+dist/
+.npm/
+
+# Env
+.env
+.env.local
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# Backend progress tracker
+scripts/.backend-progress.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.ruff_cache/
+.mypy_cache/

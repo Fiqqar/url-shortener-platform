@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+.pytest_cache
+.coverage
+.git
+.gitignore
+.env
+node_modules
