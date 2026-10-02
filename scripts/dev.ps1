@@ -1,5 +1,11 @@
 $ErrorActionPreference = "Stop"
 
+function Invoke-Terraform {
+    param([string[]]$TerraformArgs)
+    & terraform @TerraformArgs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+
 $task = $args[0]
 
 switch ($task) {
@@ -25,5 +31,22 @@ switch ($task) {
     "down" { docker compose down }
     "logs" { docker compose logs backend --tail 50 }
     "ps" { docker compose ps }
-    default { Write-Host "Usage: scripts\dev.ps1 {install|lint|test|cov|run|redis-up|redis-down|docker-build|up|down|logs|ps}" }
+    "tf-fmt" { Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "fmt", "-recursive") }
+    "tf-init" { Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "init") }
+    "tf-validate" { Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "validate") }
+    "tf-plan" { Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "plan", "-out=tfplan") }
+    "tf-apply" { Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "apply", "tfplan") }
+    "tf-destroy" {
+        Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "plan", "-destroy", "-out", "destroy.tfplan")
+        $confirmation = Read-Host "Review the destroy plan above. Type DESTROY to apply it"
+        if ($confirmation -cne "DESTROY") {
+            Remove-Item -LiteralPath "infra/terraform/destroy.tfplan" -Force -ErrorAction SilentlyContinue
+            Write-Host "Destroy cancelled; Terraform resources were not changed."
+            exit 1
+        }
+        Invoke-Terraform -TerraformArgs @("-chdir=infra/terraform", "apply", "destroy.tfplan")
+    }
+    default {
+        Write-Host "Usage: scripts\dev.ps1 {install|lint|test|cov|run|redis-up|redis-down|docker-build|up|down|logs|ps|tf-fmt|tf-init|tf-validate|tf-plan|tf-apply|tf-destroy}"
+    }
 }

@@ -1,4 +1,4 @@
-.PHONY: install lint test cov run redis-up redis-down docker-build up down logs ps
+.PHONY: install lint test cov run redis-up redis-down docker-build up down logs ps tf-fmt tf-init tf-validate tf-plan tf-apply tf-destroy
 
 install:
 	py -3.13 -m venv backend/.venv
@@ -36,3 +36,21 @@ logs:
 
 ps:
 	docker compose ps
+
+tf-fmt:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-fmt
+
+tf-init:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-init
+
+tf-validate:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-validate
+
+tf-plan:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-plan
+
+tf-apply:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-apply
+
+tf-destroy:
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-destroy

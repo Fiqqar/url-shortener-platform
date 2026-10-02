@@ -90,46 +90,53 @@ Run from repo root in PowerShell unless noted.
 
 ### Run / dev
 
-- `make dev` = `docker compose up --build`
-- `make backend` = `cd backend; uvicorn app.main:app --reload --port 8000`
-- `make frontend` = `cd frontend; npm run dev`
+- make dev = docker compose up --build
+- make backend = cd backend; uvicorn app.main:app --reload --port 8000
+- make frontend = cd frontend; npm run dev
 - Backend venv (PowerShell):
-  `cd backend; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt`
-- Frontend install: `cd frontend; npm install`
+  cd backend; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt
+- Frontend install: cd frontend; npm install
 
 ### Build
 
-- `make install` = `cd backend; pip install -r requirements.txt` + `cd frontend; npm install`
-- `make docker-up` = `docker compose up --build -d`
-- `make docker-down` = `docker compose down`
-- `make monitoring-up` = `docker compose -f docker-compose.yml up -d prometheus grafana alertmanager`
+- make install = backend pip install -r requirements.txt plus frontend npm install
+- make docker-up = docker compose up --build -d
+- make docker-down = docker compose down
+- make monitoring-up = docker compose -f docker-compose.yml up -d prometheus grafana alertmanager
 
 ### Test
 
-- `make test` = run both below
-- `make test-backend` = `cd backend; pytest -q`
-- `make test-frontend` = `cd frontend; npm test -- --run`
-- `make load-test` = `cd loadtest; locust -f locustfile.py`
+- make test = run both below
+- make test-backend = cd backend; pytest -q
+- make test-frontend = cd frontend; npm test -- --run
+- make load-test = cd loadtest; locust -f locustfile.py
 
 ### Lint / format
 
-- `make lint` = `cd backend; ruff check .` + `cd frontend; npm run lint`
-- `make format` = `cd backend; ruff format .` + `cd frontend; npm run format`
+- make lint = backend ruff check . plus frontend npm run lint
+- make format = backend ruff format . plus frontend npm run format
 
 ### Terraform
 
-- `make terraform-init` = `terraform -chdir=infra/terraform init`
-- `make terraform-plan` = `terraform -chdir=infra/terraform plan`
-- `make terraform-apply` = `terraform -chdir=infra/terraform apply`
+Run the Terraform targets from the repository root. The PowerShell script works without GNU Make; Make targets delegate to it.
+
+- make tf-fmt = terraform -chdir=infra/terraform fmt -recursive
+- make tf-init = terraform -chdir=infra/terraform init
+- make tf-validate = terraform -chdir=infra/terraform validate
+- make tf-plan = terraform -chdir=infra/terraform plan -out=tfplan
+- make tf-apply = terraform -chdir=infra/terraform apply tfplan
+- make tf-destroy = scripts/dev.ps1 tf-destroy; it prints the destroy plan and requires typing DESTROY before applying it
+- PowerShell equivalents: scripts\dev.ps1 tf-fmt, tf-init, tf-validate, tf-plan, tf-apply, or tf-destroy
+
+Use either Docker Compose or Terraform for the local stack, not both on the same port at the same time. Commit infra/terraform/.terraform.lock.hcl; never commit state, plan files, or terraform.tfvars.
 
 ### Docker
 
-- `make docker-build` / `scripts\dev.ps1 docker-build` = `docker build -t url-shortener-backend:dev backend`
-- `make up` / `scripts\dev.ps1 up` = `docker compose up -d --build`
-- `make down` / `scripts\dev.ps1 down` = `docker compose down` (never `-v`)
-- `make logs` / `scripts\dev.ps1 logs` = `docker compose logs backend --tail 50`
-- `make ps` / `scripts\dev.ps1 ps` = `docker compose ps`
-
+- make docker-build / scripts\dev.ps1 docker-build = docker build -t url-shortener-backend:dev backend
+- make up / scripts\dev.ps1 up = docker compose up -d --build
+- make down / scripts\dev.ps1 down = docker compose down (never -v)
+- make logs / scripts\dev.ps1 logs = docker compose logs backend --tail 50
+- make ps / scripts\dev.ps1 ps = docker compose ps
 ## 6. Hard Rules
 
 - Do not delete working tests to make CI pass.
