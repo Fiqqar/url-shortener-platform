@@ -15,7 +15,7 @@
 - `make` is NOT native to PowerShell. Get it via Git Bash, WSL, or `choco install make`.
 - Every `make <target>` below lists its plain equivalent. Prefer plain commands in PowerShell.
 - PowerShell venv activate: `.venv\Scripts\Activate.ps1` (not `source .venv/bin/activate`).
-- Use `;` or separate lines, not `&&`. Use `Join-Path` / backslashes for paths.
+- Use `;` or separate lines, not `&&`. Use `Join-Path` / backslashes for paths
 
 ## 3. Stack
 
