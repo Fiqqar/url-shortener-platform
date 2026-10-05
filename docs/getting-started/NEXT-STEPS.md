@@ -10,7 +10,7 @@
 - [x] M3 Compose 100%: redis + backend + frontend via Compose, persistensi terverifikasi (2026-10-05).
 - [x] M4 Terraform 100%: `backend` + `redis` + network + volume via Docker provider. Belum ada frontend & monitoring.
 - [x] M5 CI 100%: 4 workflow + Dependabot hijau di Actions (2026-10-05).
-- [ ] M6 Prometheus/Grafana 0%: cuma `.gitkeep`.
+- [x] M6 Prometheus/Grafana 100%: scrape `backend:8000/metrics` 15s + 12-panel dashboard ke-provision, terverifikasi dengan traffic real (2026-10-05).
 - [ ] M7 Alertmanager 0%: cuma `.gitkeep`.
 - [ ] M8 Locust 0%: cuma `.gitkeep`, belum ada `locustfile.py`.
 - [ ] M9 Failure injection 0%.
@@ -111,15 +111,15 @@ Tujuan: tiap push ke-check otomatis, jangan andalkan manual.
 
 Tujuan: metrik backend kelihatan, bukan sekadar up.
 
-- [ ] 5.1 `monitoring/prometheus/prometheus.yml`: scrape `backend:8000/metrics` tiap 15s
-- [ ] 5.2 Tambah service prometheus+grafana ke Compose **atau** TF (pilih satu buat lokal, jangan dua-duanya nyala bareng). Rekomendasi: Compose dulu.
-- [ ] 5.3 `monitoring/grafana/provisioning/` + 1 dashboard: request rate, error rate (5xx), latency p95, URL create vs redirect count, Redis error/down
-- [ ] 5.4 Pastikan label bounded (method, route, status — jangan `url`, `code`, `target`)
-- [ ] 5.5 Verifikasi:
+- [x] 5.1 `monitoring/prometheus/prometheus.yml`: scrape `backend:8000/metrics` tiap 15s
+- [x] 5.2 Tambah service prometheus+grafana ke Compose **atau** TF (pilih satu buat lokal, jangan dua-duanya nyala bareng). Rekomendasi: Compose dulu. (Compose; port host 9090/3001 bind localhost)
+- [x] 5.3 `monitoring/grafana/provisioning/` + 1 dashboard: request rate, error rate (5xx), latency p95, URL create vs redirect count, Redis error/down (jadi 12 panel termasuk p50/p99, analytics, application errors, target up, process memory)
+- [x] 5.4 Pastikan label bounded (method, route, status — jangan `url`, `code`, `target`)
+- [x] 5.5 Verifikasi:
   ```powershell
   docker compose up -d --build prometheus grafana
   Invoke-RestMethod http://localhost:9090/-/healthy
-  Invoke-RestMethod http://localhost:3000/api/health
+  Invoke-RestMethod http://localhost:3001/api/health   # Grafana (3000 sudah dipakai frontend)
   # bikin 5 short URL + 10 redirect, cek grafik naik
   ```
 - DoD: Prometheus scrape sukses, dashboard tunjukin 4 panel di atas. Centang M6.

@@ -102,7 +102,7 @@ Run from repo root in PowerShell unless noted.
 - make install = backend pip install -r requirements.txt plus frontend npm install
 - make docker-up = docker compose up --build -d
 - make docker-down = docker compose down
-- make monitoring-up = docker compose -f docker-compose.yml up -d prometheus grafana alertmanager
+- make monitoring-up = docker compose up -d prometheus grafana
 
 ### Test
 
@@ -193,7 +193,7 @@ Read ONLY the doc that matches the current task. Never load all docs.
 - [x] Milestone 3: Backend and frontend run through Docker Compose.
 - [x] Milestone 4: Terraform can reproduce the intended infrastructure.
 - [x] Milestone 5: CI validates code, tests, security, containers, and infrastructure.
-- [ ] Milestone 6: Prometheus and Grafana provide meaningful telemetry.
+- [x] Milestone 6: Prometheus and Grafana provide meaningful telemetry.
 - [ ] Milestone 7: Alertmanager detects meaningful failures.
 - [ ] Milestone 8: Locust validates baseline and stress behavior.
 - [ ] Milestone 9: Failure injection and recovery are verified.
