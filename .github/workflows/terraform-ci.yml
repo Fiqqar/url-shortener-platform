@@ -1,0 +1,56 @@
+name: terraform-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/terraform-ci.yml'
+  pull_request:
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/terraform-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Ubuntu runners expose Docker over a unix socket, unlike the
+  # Windows npipe default in variables.tf.
+  TF_VAR_docker_host: unix:///var/run/docker.sock
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.16.4
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+
+      - name: Build images required by plan
+        run: |
+          docker build -t url-shortener-backend:dev ../../backend
+          docker build -t url-shortener-frontend:dev ../../frontend
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        run: terraform plan -input=false -out=tfplan

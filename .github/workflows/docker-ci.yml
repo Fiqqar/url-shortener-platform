@@ -1,0 +1,57 @@
+name: docker-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Compose config
+        run: docker compose config --quiet
+
+      - name: Build backend image
+        run: docker build -t url-shortener-backend:ci backend
+
+      - name: Build frontend image
+        run: docker build -t url-shortener-frontend:ci frontend
+
+      - name: Trivy scan backend
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: url-shortener-backend:ci
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Trivy scan frontend
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: url-shortener-frontend:ci
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
