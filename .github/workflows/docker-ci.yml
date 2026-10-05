@@ -34,10 +34,10 @@ jobs:
         run: docker compose config --quiet
 
       - name: Build backend image
-        run: docker build -t url-shortener-backend:ci backend
+        run: docker build --pull -t url-shortener-backend:ci backend
 
       - name: Build frontend image
-        run: docker build -t url-shortener-frontend:ci frontend
+        run: docker build --pull -t url-shortener-frontend:ci frontend
 
       - name: Trivy scan backend
         uses: aquasecurity/trivy-action@v0.36.0
@@ -81,14 +81,14 @@ jobs:
 
       - name: Upload backend SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-backend.sarif
           category: trivy-backend
 
       - name: Upload frontend SARIF
         if: always() && hashFiles('trivy-frontend.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-frontend.sarif
           category: trivy-frontend

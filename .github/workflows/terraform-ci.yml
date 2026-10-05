@@ -43,8 +43,8 @@ jobs:
 
       - name: Build images required by plan
         run: |
-          docker build -t url-shortener-backend:dev ../../backend
-          docker build -t url-shortener-frontend:dev ../../frontend
+          docker build --pull -t url-shortener-backend:dev ../../backend
+          docker build --pull -t url-shortener-frontend:dev ../../frontend
 
       - name: Terraform init
         run: terraform init -input=false
