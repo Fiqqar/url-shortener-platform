@@ -18,7 +18,8 @@ services:
       context: ./backend
     image: url-shortener-backend:dev
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
