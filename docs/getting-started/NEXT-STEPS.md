@@ -7,9 +7,9 @@
 
 - [x] M1 Backend 100%: create, redirect 307, analytics, health/ready, Redis, tests + `/metrics` (2026-10-05: instrumentator 8.1.0, 36 tests hijau).
 - [x] M2 Frontend 100%: Vite Vue-TS + router + flow create/copy/analytics, 12 tests hijau, build sukses (2026-10-05).
-- [~] M3 Compose 50%: cuma `backend` + `redis`. Belum ada frontend & monitoring.
+- [x] M3 Compose 100%: redis + backend + frontend via Compose, persistensi terverifikasi (2026-10-05).
 - [x] M4 Terraform 100%: `backend` + `redis` + network + volume via Docker provider. Belum ada frontend & monitoring.
-- [~] M5 CI 80%: 4 workflow + dependabot dibuat dan verifikasi lokal hijau. Tinggal push pertama buat hijau di Actions.
+- [x] M5 CI 100%: 4 workflow + Dependabot hijau di Actions (2026-10-05).
 - [ ] M6 Prometheus/Grafana 0%: cuma `.gitkeep`.
 - [ ] M7 Alertmanager 0%: cuma `.gitkeep`.
 - [ ] M8 Locust 0%: cuma `.gitkeep`, belum ada `locustfile.py`.
@@ -104,7 +104,7 @@ Tujuan: tiap push ke-check otomatis, jangan andalkan manual.
 - [x] 4.3 Buat `.github/workflows/docker.yml`: `docker build backend`, `docker build frontend`, `docker compose config`
 - [x] 4.4 Buat `.github/workflows/terraform.yml`: `terraform fmt -check`, `init`, `validate`, `plan` (tanpa apply)
 - [x] 4.5 Set permissions least-privilege di tiap workflow (`permissions: contents: read` dsb)
-- [ ] 4.6 Verifikasi: push ke branch, lihat Actions hijau. Jangan merge kalau merah.
+- [x] 4.6 Verifikasi: push ke branch, lihat Actions hijau. Jangan merge kalau merah.
 - DoD: 4 workflow hijau, scan jalan, permission minimal. Centang M5.
 
 ## Step 5 — M6 Observability (Prometheus + Grafana beneran guna)

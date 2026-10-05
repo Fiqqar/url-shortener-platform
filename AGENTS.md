@@ -189,10 +189,10 @@ Read ONLY the doc that matches the current task. Never load all docs.
 ## 9. Current Status
 
 - [x] Milestone 1: Backend can create, redirect, and analyze short URLs.
-- [ ] Milestone 2: Frontend provides the complete basic user flow.
-- [ ] Milestone 3: Backend and frontend run through Docker Compose.
-- [ ] Milestone 4: Terraform can reproduce the intended infrastructure.
-- [ ] Milestone 5: CI validates code, tests, security, containers, and infrastructure.
+- [x] Milestone 2: Frontend provides the complete basic user flow.
+- [x] Milestone 3: Backend and frontend run through Docker Compose.
+- [x] Milestone 4: Terraform can reproduce the intended infrastructure.
+- [x] Milestone 5: CI validates code, tests, security, containers, and infrastructure.
 - [ ] Milestone 6: Prometheus and Grafana provide meaningful telemetry.
 - [ ] Milestone 7: Alertmanager detects meaningful failures.
 - [ ] Milestone 8: Locust validates baseline and stress behavior.
