@@ -15,14 +15,18 @@ COPY app ./app
 
 # Patch packages that arrive via the base image with known HIGH CVEs
 # (libpcre2-8-0, msgpack, urllib3, setuptools are not in our dependency
-# tree: the app serves traffic without them). This must run in the final
-# stage: a builder-stage install cannot remove the base layer's stale
-# dist-info files because the COPY overlay only adds files, while pip/apt
-# here act on the final filesystem directly. Lower bounds keep working if
-# a newer base already ships fixed versions.
+# tree: the app serves traffic without them). The stale copies must be
+# deleted first: the base layer and the builder overlay each contribute a
+# versioned dist-info dir (e.g. msgpack-1.1.2 AND msgpack-1.2.3), and pip
+# considers the requirement satisfied by the newer copy, so it never
+# removes the stale one - but Trivy scans every dist-info it finds.
+# Purging by name is a no-op for paths that do not exist, and reinstalling
+# the fixed versions keeps the image working if a future dependency needs
+# these packages.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
     && rm -rf /var/lib/apt/lists/* \
+    && python -c "import glob, shutil, site; [shutil.rmtree(p) for sp in site.getsitepackages() for pat in ('msgpack*', 'urllib3*', 'setuptools*', 'pkg_resources*') for p in glob.glob(sp + '/' + pat)]" \
     && pip install --no-cache-dir --break-system-packages \
         "msgpack>=1.2.1" \
         "urllib3>=2.8.0" \
