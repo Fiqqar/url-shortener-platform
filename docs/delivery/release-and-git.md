@@ -85,6 +85,19 @@ Examples:
     infra: add Redis Terraform resource
     docs: document local setup
 
+Repository commits and pushes are made with the `relay` CLI (`relay --solo`). Relay stages the changes, writes a Conventional Commit message, and pushes to the current branch. Relay 2.5.0 is the version currently in use.
+
+Common flags:
+
+    relay --solo --staged   # commit only what is already staged
+    relay --solo --no-push  # commit without pushing
+    relay --solo --dry-run  # show the plan without changing anything
+    relay --solo -m "fix: handle missing short codes"   # fixed message instead of AI generation
+
+Without `--staged`, relay stages all working-tree changes (`git add .`) before committing, so stage the intended files first when the tree contains unrelated edits.
+
+Relay is a local developer tool; CI validates the pushed commits regardless of how they were created.
+
 Avoid giant commits that combine unrelated application, infrastructure, and documentation changes.
 
 ---
