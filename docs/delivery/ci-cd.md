@@ -42,6 +42,8 @@ Suggested workflows:
 
 The exact number of workflows may be consolidated if doing so improves maintainability.
 
+The workflows currently implemented in this repository are `backend-ci.yml`, `frontend-ci.yml`, `terraform-ci.yml`, `docker-ci.yml`, and `monitoring-ci.yml`, which validates the Prometheus and Grafana configuration under `monitoring/`.
+
 Do not create separate workflows merely to increase the apparent number of CI/CD components.
 
 ---

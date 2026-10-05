@@ -34,6 +34,8 @@ Configuration lives in `monitoring/`:
 - `monitoring/grafana/provisioning/` provisions the datasource and the dashboard provider
 - `monitoring/grafana/dashboards/url-shortener.json` is the provisioned dashboard
 
+Configuration changes are validated in CI (`.github/workflows/monitoring-ci.yml`); run `python scripts/validate_monitoring.py` locally to reproduce the structural checks.
+
 Generate sample traffic and watch the panels move:
 
 ~~~powershell
