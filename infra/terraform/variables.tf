@@ -41,3 +41,25 @@ variable "backend_port" {
     error_message = "backend_port must be an integer between 1 and 65535."
   }
 }
+
+variable "frontend_image" {
+  description = "Existing local frontend image to run."
+  type        = string
+  default     = "url-shortener-frontend:dev"
+
+  validation {
+    condition     = length(trimspace(var.frontend_image)) > 0
+    error_message = "frontend_image must not be empty."
+  }
+}
+
+variable "frontend_port" {
+  description = "Host port published for the frontend."
+  type        = number
+  default     = 3000
+
+  validation {
+    condition     = var.frontend_port >= 1 && var.frontend_port <= 65535 && floor(var.frontend_port) == var.frontend_port
+    error_message = "frontend_port must be an integer between 1 and 65535."
+  }
+}

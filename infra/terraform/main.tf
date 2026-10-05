@@ -1,12 +1,17 @@
 locals {
-  backend_container_name = "url-shortener-tf-backend"
-  redis_container_name   = "url-shortener-tf-redis"
-  network_name           = "url-shortener-tf-network"
-  redis_volume_name      = "url-shortener-tf-redis-data"
+  backend_container_name  = "url-shortener-tf-backend"
+  frontend_container_name = "url-shortener-tf-frontend"
+  redis_container_name    = "url-shortener-tf-redis"
+  network_name            = "url-shortener-tf-network"
+  redis_volume_name       = "url-shortener-tf-redis-data"
 }
 
 data "docker_image" "backend" {
   name = var.backend_image
+}
+
+data "docker_image" "frontend" {
+  name = var.frontend_image
 }
 
 resource "docker_image" "redis" {
@@ -88,4 +93,23 @@ resource "docker_container" "backend" {
 
   wait         = true
   wait_timeout = 180
+}
+
+resource "docker_container" "frontend" {
+  # Frontend is static (nginx); browser calls backend directly at
+  # var.backend_port, so no env link needed. Attached to the same network
+  # for consistency with Compose.
+  name  = local.frontend_container_name
+  image = data.docker_image.frontend.id
+
+  restart = "unless-stopped"
+
+  networks_advanced {
+    name = docker_network.app.name
+  }
+
+  ports {
+    internal = 80
+    external = var.frontend_port
+  }
 }
