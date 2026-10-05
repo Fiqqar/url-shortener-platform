@@ -68,12 +68,12 @@ Avoid passing secrets into pull requests from untrusted forks unless the workflo
 
 Third-party GitHub Actions should be pinned to stable versions.
 
-For higher-security environments, pinning to immutable commit SHAs may be preferred.
+Every action in `.github/workflows/` is pinned to a full-length immutable commit SHA with its release version as a trailing comment (`owner/action@<40-char-commit-sha> # vX.Y.Z`). For annotated tags, the pinned SHA is the peeled commit SHA, not the tag object SHA.
 
 When updating an action:
 
 - review the release
-- update the pinned reference
+- update the pinned SHA and the version comment
 - run the affected workflow
 - verify permissions
 

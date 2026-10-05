@@ -450,9 +450,13 @@ Do not put secrets in:
 
 Actions should use stable, intentional versions.
 
-Where the project's security policy permits, pin third-party actions to immutable commit SHAs.
+Every action in `.github/workflows/` is pinned to a full-length immutable commit SHA, with the exact release as a trailing comment:
 
-If tags are used for maintainability, keep them updated and review action changes.
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+For annotated tags, pin the peeled commit SHA (the commit the tag points to), not the tag object SHA. Tags can move or be repointed; commit SHAs cannot.
+
+The trailing version comment keeps updates reviewable and lets Dependabot's `github-actions` ecosystem bump the SHA and the comment together.
 
 Do not blindly copy arbitrary third-party workflow snippets into the repository.
 
