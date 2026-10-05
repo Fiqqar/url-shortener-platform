@@ -1,0 +1,59 @@
+name: monitoring-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'monitoring/**'
+      - 'scripts/validate_monitoring.py'
+      - '.github/workflows/monitoring-ci.yml'
+  pull_request:
+    paths:
+      - 'monitoring/**'
+      - 'scripts/validate_monitoring.py'
+      - '.github/workflows/monitoring-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitoring-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  monitoring:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Validate Prometheus config (promtool)
+        # Keep prom/prometheus on the same tag as docker-compose.yml so the
+        # config is checked with the version that will actually run it.
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "$PWD/monitoring/prometheus:/etc/prometheus:ro" \
+            prom/prometheus:v3.15.0 check config /etc/prometheus/prometheus.yml
+
+      - name: Validate Grafana provisioning and dashboards
+        run: |
+          python -m pip install --disable-pip-version-check "PyYAML>=6,<7"
+          python scripts/validate_monitoring.py --promql-out "${RUNNER_TEMP}/dashboard-expressions.txt"
+
+      - name: Validate dashboard PromQL expressions (promtool)
+        run: |
+          docker run --rm -i --entrypoint sh prom/prometheus:v3.15.0 -c '
+          failed=0
+          while IFS= read -r expression || [ -n "$expression" ]; do
+            if ! promtool --experimental promql format "$expression" > /dev/null; then
+              echo "::error::invalid PromQL expression in the dashboard: $expression"
+              failed=1
+            fi
+          done
+          exit "$failed"
+          ' < "${RUNNER_TEMP}/dashboard-expressions.txt"
