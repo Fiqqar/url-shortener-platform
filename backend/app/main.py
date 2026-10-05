@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api import health, urls
 from app.core import redis as redis_manager
@@ -66,6 +67,11 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(urls.router)
+
+    # Expose /metrics BEFORE the catch-all /{code} redirect route,
+    # otherwise GET /metrics is shadowed by redirect with code="metrics".
+    Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
     app.include_router(urls.redirect_router)
 
     return app
