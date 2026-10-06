@@ -11,7 +11,7 @@
 - [x] M4 Terraform 100%: `backend` + `redis` + network + volume via Docker provider. Belum ada frontend & monitoring.
 - [x] M5 CI 100%: 4 workflow + Dependabot hijau di Actions (2026-10-05).
 - [x] M6 Prometheus/Grafana 100%: scrape `backend:8000/metrics` 15s + 12-panel dashboard ke-provision, terverifikasi dengan traffic real (2026-10-05).
-- [ ] M7 Alertmanager 0%: cuma `.gitkeep`.
+- [x] M7 Alertmanager 100%: `alerts.yml` (BackendDown, HighErrorRate, HighLatency, RedisDown) + `alertmanager.yml` + Compose wiring, BackendDown firing→resolved terverifikasi (2026-10-06).
 - [ ] M8 Locust 0%: cuma `.gitkeep`, belum ada `locustfile.py`.
 - [ ] M9 Failure injection 0%.
 - [ ] M10 Security/release 30%: code aman, pipeline belum ada.
@@ -128,10 +128,10 @@ Tujuan: metrik backend kelihatan, bukan sekadar up.
 
 Tujuan: kalau backend/redis mati, lo tahu dari alert, bukan dari user komplain.
 
-- [ ] 6.1 `monitoring/prometheus/rules/*.yml`: alert `BackendDown`, `HighErrorRate`, `HighLatency`, `RedisDown`
-- [ ] 6.2 `monitoring/alertmanager/alertmanager.yml`: route default, receiver log/webhook dulu (jangan spam email/Slack asli buat belajar)
-- [ ] 6.3 Test dengan failure injection manual: `docker stop <backend>` → alert `BackendDown` firing → `docker start` → resolved
-- [ ] 6.4 Verifikasi: screenshot / log Alertmanager tunjukin firing → resolved
+- [x] 6.1 `monitoring/prometheus/rules/*.yml`: alert `BackendDown`, `HighErrorRate`, `HighLatency`, `RedisDown`
+- [x] 6.2 `monitoring/alertmanager/alertmanager.yml`: route default, receiver log/webhook dulu (jangan spam email/Slack asli buat belajar)
+- [x] 6.3 Test dengan failure injection manual: `docker stop <backend>` → alert `BackendDown` firing → `docker start` → resolved
+- [x] 6.4 Verifikasi: screenshot / log Alertmanager tunjukin firing → resolved
 - DoD: 4 alert bisa firing & recovery terverifikasi. Centang M7.
 
 ## Step 7 — M8 Load test (Locust baseline + stress)

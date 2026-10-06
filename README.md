@@ -21,20 +21,34 @@ Prometheus and Grafana run through Compose and bind to localhost only.
 docker compose up -d prometheus grafana   # or: make monitoring-up
 ~~~
 
-- Prometheus: http://localhost:9090 (scrape target health at http://localhost:9090/targets)
+- Prometheus: http://localhost:9090 (scrape target health at http://localhost:9090/targets, alerts at http://localhost:9090/alerts)
+- Alertmanager: http://localhost:9093 (alerts at http://localhost:9093/api/v2/alerts)
 - Grafana: http://localhost:3001; local default login `admin` / `admin` (change it for anything non-local)
 - Dashboard "URL Shortener Platform" is provisioned from the repository, so the committed file is the source of truth
 
 The dashboard covers request and error rate, p50/p95/p99 latency, redirect, URL creation, and analytics rates, Redis and application errors, scrape target health, and process memory. The Redis and application error panels stay empty until an error actually occurs.
 
+Alerts (`monitoring/prometheus/rules/alerts.yml`): `BackendDown` (critical), `HighErrorRate` (warning, >5% 5xx for 2m), `HighLatency` (warning, p95 >0.5s for 2m), `RedisDown` (critical). Labels stay low-cardinality (`severity`, `service`, `environment`); thresholds are local-learning values, tune from baseline before non-local use.
+
 Configuration lives in `monitoring/`:
 
-- `monitoring/prometheus/prometheus.yml` scrapes `backend:8000/metrics` every 15s
-- `monitoring/prometheus/rules/` holds Prometheus rule files (alert rules arrive in the Alertmanager phase)
+- `monitoring/prometheus/prometheus.yml` scrapes `backend:8000/metrics` every 15s and sends alerts to `alertmanager:9093`
+- `monitoring/prometheus/rules/alerts.yml` holds the 4 alert rules
+- `monitoring/alertmanager/alertmanager.yml` routes warning + critical to the local test receiver (no real notifications; view in Alertmanager UI)
 - `monitoring/grafana/provisioning/` provisions the datasource and the dashboard provider
 - `monitoring/grafana/dashboards/url-shortener.json` is the provisioned dashboard
 
-Configuration changes are validated in CI (`.github/workflows/monitoring-ci.yml`); run `python scripts/validate_monitoring.py` locally to reproduce the structural checks.
+Configuration changes are validated in CI (`.github/workflows/monitoring-ci.yml` via `promtool check config`, `promtool check rules`, `amtool check-config`); run `python scripts/validate_monitoring.py` locally to reproduce the structural checks.
+
+Test alert firing locally:
+
+~~~powershell
+docker compose up -d --build redis backend prometheus alertmanager
+docker stop url-shortener-platform-backend-1  # wait ~75s: BackendDown firing in Prometheus + Alertmanager
+Invoke-RestMethod http://localhost:9090/api/v1/alerts
+Invoke-RestMethod http://localhost:9093/api/v2/alerts
+docker start url-shortener-platform-backend-1  # wait ~60s: alerts resolve, target up
+~~~
 
 Generate sample traffic and watch the panels move:
 
