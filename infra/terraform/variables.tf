@@ -31,6 +31,17 @@ variable "redis_image" {
   }
 }
 
+variable "redis_maxmemory" {
+  description = "Redis maxmemory limit. Full Redis rejects writes instead of evicting URL records."
+  type        = string
+  default     = "256mb"
+
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(kb|mb|gb)$", var.redis_maxmemory))
+    error_message = "redis_maxmemory must be a positive integer followed by kb, mb, or gb."
+  }
+}
+
 variable "backend_port" {
   description = "Host port published for the backend API."
   type        = number

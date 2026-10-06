@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.api.dependencies import get_redis_client
 from app.core import redis as redis_manager
+from app.core.exceptions import RedisUnavailableError
 from app.services import url_service
 
 
@@ -35,12 +36,12 @@ async def test_redis_unreachable_init_fails_fast():
 
 
 @pytest.mark.asyncio
-async def test_redis_down_dependency_raises_503():
+async def test_missing_redis_client_raises_unavailable_error():
     redis_manager._client = None
     try:
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(RedisUnavailableError) as exc_info:
             await get_redis_client()
-        assert getattr(exc_info.value, "status_code", 503) == 503 or "Redis" in str(exc_info.value)
+        assert str(exc_info.value) == "Redis not initialized"
     finally:
         redis_manager._client = None
 
@@ -76,10 +77,3 @@ async def test_create_rejects_javascript_scheme(test_redis):
 
     with pytest.raises(URLCreationError):
         await url_service.create_short_url(test_redis, "javascript:alert(1)")
-
-
-@pytest.mark.asyncio
-async def test_http_exception_carries_no_internals():
-    err = HTTPException(status_code=503, detail="Storage unavailable")
-    assert "redis" not in str(err.detail).lower() or err.detail == "Storage unavailable"
-    assert "Traceback" not in str(err.detail)

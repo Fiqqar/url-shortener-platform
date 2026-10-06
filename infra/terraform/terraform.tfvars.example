@@ -3,5 +3,6 @@ docker_host    = "npipe:////.//pipe//docker_engine"
 backend_image  = "url-shortener-backend:dev"
 frontend_image = "url-shortener-frontend:dev"
 redis_image    = "redis:7-alpine"
+redis_maxmemory = "256mb"
 backend_port   = 8000
 frontend_port  = 3000

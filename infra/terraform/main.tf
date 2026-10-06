@@ -29,9 +29,14 @@ resource "docker_volume" "redis" {
 }
 
 resource "docker_container" "redis" {
-  name    = local.redis_container_name
-  image   = docker_image.redis.image_id
-  command = ["redis-server", "--appendonly", "yes"]
+  name  = local.redis_container_name
+  image = docker_image.redis.image_id
+  command = [
+    "redis-server",
+    "--appendonly", "yes",
+    "--maxmemory", var.redis_maxmemory,
+    "--maxmemory-policy", "noeviction",
+  ]
   restart = "unless-stopped"
 
   networks_advanced {
@@ -55,9 +60,13 @@ resource "docker_container" "redis" {
 }
 
 resource "docker_container" "backend" {
-  name       = local.backend_container_name
-  image      = data.docker_image.backend.id
-  env        = ["REDIS_HOST=${docker_container.redis.name}", "REDIS_PORT=6379"]
+  name  = local.backend_container_name
+  image = data.docker_image.backend.id
+  env = [
+    "REDIS_HOST=${docker_container.redis.name}",
+    "REDIS_PORT=6379",
+    "BASE_URL=http://localhost:${var.backend_port}",
+  ]
   restart    = "unless-stopped"
   read_only  = true
   privileged = false
@@ -69,6 +78,7 @@ resource "docker_container" "backend" {
   }
 
   ports {
+    ip       = "127.0.0.1"
     internal = 8000
     external = var.backend_port
   }
@@ -109,6 +119,7 @@ resource "docker_container" "frontend" {
   }
 
   ports {
+    ip       = "127.0.0.1"
     internal = 80
     external = var.frontend_port
   }

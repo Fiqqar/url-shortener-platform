@@ -1,3 +1,5 @@
+from redis.exceptions import RedisError
+
 SEQUENCE_KEY = "meta:urls:sequence"
 
 
@@ -14,8 +16,19 @@ async def next_id(client) -> int:
 
 
 async def save_url(client, code: str, target: str) -> None:
-    await client.set(url_key(code), target)
-    await client.set(clicks_key(code), 0)
+    try:
+        async with client.pipeline(transaction=True) as pipeline:
+            pipeline.set(url_key(code), target)
+            pipeline.set(clicks_key(code), 0)
+            await pipeline.execute()
+    except RedisError:
+        # Redis transactions do not roll back individual command errors, so
+        # remove either key if EXEC failed after only one write took effect.
+        try:
+            await client.delete(url_key(code), clicks_key(code))
+        except RedisError:
+            pass
+        raise
 
 
 async def get_url(client, code: str) -> str | None:
