@@ -1,5 +1,6 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from app.api.dependencies import get_redis_client
 from app.core import redis as redis_manager
@@ -131,3 +132,54 @@ async def test_readiness_returns_503_when_redis_down(api_client):
     redis_manager._client = None
     resp = await client.get("/ready")
     assert resp.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_create_rejects_oversized_body_before_redis_access():
+    app = create_app()
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/urls",
+            content=b"x" * 32769,
+            headers={"content-type": "application/json"},
+        )
+    assert response.status_code == 413
+
+
+@pytest.mark.asyncio
+async def test_chunked_oversized_body_is_bounded():
+    app = create_app()
+
+    async def body_chunks():
+        yield b"x" * 20000
+        yield b"x" * 20000
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/urls",
+            content=body_chunks(),
+            headers={"content-type": "application/json"},
+        )
+    assert response.status_code == 413
+
+
+@pytest.mark.asyncio
+async def test_redis_operation_error_returns_sanitized_503():
+    app = create_app()
+
+    class BrokenRedis:
+        async def get(self, key):
+            raise RedisConnectionError("private redis host details")
+
+    async def override():
+        return BrokenRedis()
+
+    app.dependency_overrides[get_redis_client] = override
+    transport = ASGITransport(app=app, raise_app_exceptions=False)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/Abc123")
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Storage unavailable"}
+    assert "private redis host details" not in response.text

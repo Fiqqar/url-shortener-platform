@@ -1,12 +1,15 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
+from redis.exceptions import RedisError
 
 from app.api import health, urls
 from app.core import redis as redis_manager
+from app.core.body_limit import BodySizeLimitMiddleware
 from app.core.config import settings
 from app.core.exceptions import (
     AnalyticsNotFoundError,
@@ -18,13 +21,13 @@ from app.core.exceptions import (
 from app.core.logging import configure_logging
 from app.core.middleware import RequestIDMiddleware
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging(settings.log_level)
-    await redis_manager.init_redis(
-        settings.redis_host, settings.redis_port, settings.redis_db
-    )
+    await redis_manager.init_redis(settings.redis_host, settings.redis_port, settings.redis_db)
     yield
     await redis_manager.close_redis()
 
@@ -32,6 +35,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     configure_logging(settings.log_level)
     app = FastAPI(title="url-shortener-platform", lifespan=lifespan)
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.max_body_bytes)
     app.add_middleware(RequestIDMiddleware)
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
     app.add_middleware(
@@ -63,6 +67,12 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(RedisUnavailableError)
     async def redis_down_handler(request: Request, exc: Exception):
+        return JSONResponse(status_code=503, content={"detail": "Storage unavailable"})
+
+    @app.exception_handler(RedisError)
+    @app.exception_handler(TimeoutError)
+    async def redis_operation_error_handler(request: Request, exc: Exception):
+        logger.exception("Redis operation failed")
         return JSONResponse(status_code=503, content={"detail": "Storage unavailable"})
 
     app.include_router(health.router)

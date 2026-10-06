@@ -9,6 +9,8 @@ venv
 .git
 .gitignore
 .env
+.env.*
+*.env
 tests
 docs
 .vscode
