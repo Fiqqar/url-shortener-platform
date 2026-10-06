@@ -2,34 +2,30 @@
 
 ## Requirements and scope
 
-- Terraform version constraint: ~> 1.16.4.
-- Docker provider: kreuzwerker/docker ~> 4.6.0; keep .terraform.lock.hcl under version control.
-- A running Docker Desktop Engine on Windows, using the npipe endpoint configured in providers.tf.
-- The local url-shortener-backend:dev image. Terraform references this image and does not build it.
-- The stack contains only the backend and Redis. Redis data persists in the Terraform-managed url-shortener-tf-redis-data volume.
+- Terraform `~> 1.16.4` and Docker provider `~> 4.6.0`; keep `.terraform.lock.hcl` under version control.
+- Docker Desktop Engine on Windows, using the npipe endpoint in `providers.tf`.
+- Existing local `url-shortener-backend:dev` and `url-shortener-frontend:dev` images. Terraform references these images; it does not build them.
+- Terraform manages the backend, frontend, Redis, one Docker network, and a persistent Redis volume. Backend and frontend ports bind to `127.0.0.1`; Redis is not published. Redis has a configurable `maxmemory` default of `256mb` and uses `noeviction`, so new writes fail rather than deleting existing short URLs when the limit is reached.
 
-Use Docker Compose or Terraform for this stack, not both on the same host port at the same time. The backend publishes the configurable host port (default 8000); Redis has no published port.
+Use Docker Compose or Terraform for the local stack, not both on the same host ports. Defaults are backend `8000` and frontend `3000`. Terraform derives the backend `BASE_URL` from `backend_port`. The frontend bundle contains its API base URL at build time, so if `backend_port` changes, rebuild the frontend image with a matching `VITE_API_BASE_URL` build argument.
 
 ## Variables
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| docker_host | npipe:////.//pipe//docker_engine | Docker Engine endpoint |
-| backend_image | url-shortener-backend:dev | Existing local backend image |
-| redis_image | redis:7-alpine | Tagged Redis image used by the stack |
-| backend_port | 8000 | Host port mapped to backend port 8000 |
+| `docker_host` | `npipe:////.//pipe//docker_engine` | Docker Engine endpoint |
+| `backend_image` | `url-shortener-backend:dev` | Existing local backend image |
+| `frontend_image` | `url-shortener-frontend:dev` | Existing local frontend image |
+| `redis_image` | `redis:7-alpine` | Tagged or digest-pinned Redis image |
+| `redis_maxmemory` | `256mb` | Redis data memory cap; full Redis rejects writes |
+| `backend_port` | `8000` | Host port mapped to backend port 8000 |
+| `frontend_port` | `3000` | Host port mapped to frontend port 80 |
 
-The example values are in terraform.tfvars.example. Copy it to terraform.tfvars only when you want to override defaults. It contains no credentials. Local state is ignored by Git and may contain infrastructure data.
+Copy `terraform.tfvars.example` to `terraform.tfvars` only when overriding defaults. It contains no credentials. Local state is ignored by Git and may contain infrastructure data.
 
 ## Outputs
 
-| Output | Description |
-| --- | --- |
-| backend_url | Local backend URL |
-| backend_container_name | Terraform backend container name |
-| redis_container_name | Terraform Redis container name |
-| redis_volume_name | Persistent Redis volume name |
-| network_name | Dedicated Docker network name |
+`backend_url`, `frontend_url`, backend/frontend/Redis container names, Redis volume name, and network name.
 
 ## PowerShell workflow
 
@@ -43,6 +39,15 @@ terraform -chdir=infra/terraform init
 .\scripts\dev.ps1 tf-apply
 ~~~
 
-The backend image can be built with docker build -t url-shortener-backend:dev backend. Applying requires reviewing the plan first. The tf-destroy command prints a destroy plan and asks for the exact confirmation DESTROY before applying it. Destroy removes the Terraform-managed containers, network, and Redis volume, including its persisted data.
+Build the expected images first when needed:
 
-Terraform state is local for this portfolio environment. Never commit state, plan files, or local terraform.tfvars files. The checked-in provider lock file pins the selected provider build.
+~~~powershell
+docker build -t url-shortener-backend:dev backend
+docker build -t url-shortener-frontend:dev --build-arg VITE_API_BASE_URL=http://localhost:8000 frontend
+~~~
+
+Review the plan before applying. `tf-destroy` prints a destroy plan and asks for the exact confirmation `DESTROY` before applying it. Destroy removes the Terraform-managed containers, network, and Redis volume, including persisted data.
+
+Never commit state, plan files, or local `terraform.tfvars` files.
+
+The named Redis volume survives container recreation, but it is not a backup. The project has no scheduled/off-host backup or automated restore procedure. See [Docker and Redis persistence notes](../../docs/delivery/docker.md#current-redis-persistence-and-backup-status) before treating the local volume as valuable data protection.

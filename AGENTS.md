@@ -65,7 +65,6 @@ url-shortener-platform/
       outputs.tf
       providers.tf
       versions.tf
-    docker/
   monitoring/
     prometheus/
       prometheus.yml
@@ -91,7 +90,7 @@ Run from repo root in PowerShell unless noted.
 ### Run / dev
 
 - make dev = docker compose up --build
-- make backend = cd backend; uvicorn app.main:app --reload --port 8000
+- make backend = cd backend; .venv/Scripts/python -m uvicorn app.main:app --reload --port 8000
 - make frontend = cd frontend; npm run dev
 - Backend venv (PowerShell):
   cd backend; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt
@@ -99,22 +98,22 @@ Run from repo root in PowerShell unless noted.
 
 ### Build
 
-- make install = backend pip install -r requirements.txt plus frontend npm install
+- make install = create backend/.venv with Python 3.13, install backend runtime + dev requirements, then run npm install in frontend
 - make docker-up = docker compose up --build -d
 - make docker-down = docker compose down
-- make monitoring-up = docker compose up -d prometheus grafana
+- make monitoring-up = docker compose up -d prometheus alertmanager grafana
 
 ### Test
 
 - make test = run both below
-- make test-backend = cd backend; pytest -q
+- make test-backend = backend/.venv/Scripts/python -m pytest backend/tests -q (from repo root)
 - make test-frontend = cd frontend; npm test -- --run
 - make load-test = cd loadtest; locust -f locustfile.py
 
 ### Lint / format
 
-- make lint = backend ruff check . plus frontend npm run lint
-- make format = backend ruff format . plus frontend npm run format
+- make lint = backend/.venv/Scripts/python -m ruff check backend (no frontend lint script is defined)
+- make format = backend/.venv/Scripts/python -m ruff format backend (no frontend format script is defined)
 
 ### Terraform
 

@@ -7,7 +7,7 @@ Docs: docs/ (see Docs Index in AGENTS.md).
 ## Run with Docker
 
 ~~~powershell
-Copy-Item .env.example .env  # first time only; set REDIS_HOST=redis
+Copy-Item .env.example .env  # optional local overrides; Compose sets REDIS_HOST=redis
 docker compose up -d --build
 Invoke-RestMethod http://localhost:8000/health
 docker compose ps
@@ -18,7 +18,7 @@ docker compose ps
 Prometheus and Grafana run through Compose and bind to localhost only.
 
 ~~~powershell
-docker compose up -d prometheus grafana   # or: make monitoring-up
+docker compose up -d prometheus alertmanager grafana   # or: make monitoring-up
 ~~~
 
 - Prometheus: <http://localhost:9090> (scrape target health at <http://localhost:9090/targets>, alerts at <http://localhost:9090/alerts>)
@@ -60,7 +60,7 @@ Invoke-RestMethod "http://localhost:8000/api/v1/urls/$($r.code)/analytics"
 
 ## Provision with Terraform
 
-Use either Docker Compose or Terraform for this stack, not both on the same port at the same time. Terraform provisions the backend, Redis, a dedicated Docker network, and a persistent Redis volume. Docker Desktop must be running, and the local url-shortener-backend:dev image must exist.
+Use either Docker Compose or Terraform for this stack, not both on the same host ports at the same time. Terraform provisions the backend, frontend, Redis, a dedicated Docker network, and a persistent Redis volume; backend and frontend ports bind to localhost. Docker Desktop must be running, and the local `url-shortener-backend:dev` and `url-shortener-frontend:dev` images must exist. The frontend image bakes in `VITE_API_BASE_URL` at build time; rebuild it if you change Terraform's backend host port.
 
 ~~~powershell
 terraform -chdir=infra/terraform init
@@ -70,7 +70,14 @@ terraform -chdir=infra/terraform init
 .\scripts\dev.ps1 tf-apply
 ~~~
 
-To create the local backend image if needed, run docker build -t url-shortener-backend:dev backend from the repository root. The destroy command prints a destroy plan and requires typing DESTROY before it applies that plan:
+To create the local images if needed, run these commands from the repository root:
+
+~~~powershell
+docker build -t url-shortener-backend:dev backend
+docker build -t url-shortener-frontend:dev --build-arg VITE_API_BASE_URL=http://localhost:8000 frontend
+~~~
+
+The destroy command prints a destroy plan and requires typing DESTROY before it applies that plan:
 
 ~~~powershell
 .\scripts\dev.ps1 tf-destroy

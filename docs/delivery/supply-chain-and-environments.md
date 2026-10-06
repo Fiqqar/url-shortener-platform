@@ -172,7 +172,7 @@ Prefer configuration over conditional application forks.
 
 Environment variables should have clear names.
 
-Examples include:
+Common names in the wider ecosystem include:
 
 - APP_ENV
 - REDIS_URL
@@ -182,6 +182,8 @@ Examples include:
 - LOCUST_HOST
 
 Actual variable names should remain centralized and documented.
+
+This repository currently uses backend `REDIS_HOST`, `REDIS_PORT`, `REDIS_DB`, `BASE_URL`, `LOG_LEVEL`, `CORS_ORIGINS`, and `MAX_BODY_BYTES`; Compose interpolation uses `REDIS_MAXMEMORY` for the Redis container; Terraform uses `redis_maxmemory`; frontend `VITE_API_BASE_URL` is baked into the Vite bundle at image build time; Locust uses `LOCUST_HOST`. The backend itself does not read `REDIS_MAXMEMORY`, `APP_ENV`, `REDIS_URL`, `CORS_ALLOWED_ORIGINS`, or `API_BASE_URL`.
 
 Use Pydantic Settings on the backend to validate required configuration.
 

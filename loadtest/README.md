@@ -9,7 +9,7 @@ written authorization. The default target is local development.
 - Stack running locally: `docker compose up -d --build` (backend on
   `http://localhost:8000`, Redis healthy)
 - Monitoring up (to correlate results):
-  `docker compose up -d prometheus grafana`
+  `docker compose up -d prometheus alertmanager grafana`
 - Python 3.12+ with Locust installed:
 
 ~~~powershell
@@ -61,6 +61,8 @@ redirect/analytics/info reads. Newly created codes join the pool
 throughput measures read performance, not write throughput.
 
 ## Scenarios
+
+CI runs a 2-user, 30-second smoke and sets `--exit-code-on-error 1`, so any failed or errored request fails the job. It does not enforce an RPS or latency threshold; performance comparisons remain manual because this short GitHub-hosted run is not a stable benchmark.
 
 ### 1. Baseline — establish normal behavior
 

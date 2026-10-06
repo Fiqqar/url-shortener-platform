@@ -267,6 +267,16 @@ Do not bind-mount arbitrary developer filesystem paths unless necessary.
 
 Named volumes provide a more portable local setup.
 
+### Current Redis persistence and backup status
+
+Compose and Terraform run Redis with AOF enabled, a named `/data` volume, a default `256mb` `maxmemory`, and `maxmemory-policy noeviction`. Set `REDIS_MAXMEMORY` for Compose or `redis_maxmemory` for Terraform to change the cap. When full, Redis keeps existing keys and rejects writes; the backend maps Redis errors to `503 Storage unavailable`. `maxmemory` limits Redis dataset use, not total container RSS, so leave host/container headroom.
+
+The URL and click-counter keys have no TTL, so they remain until manually removed. The memory cap prevents unlimited Redis dataset growth, but it does not provide URL retention. Choose a retention period before storing valuable or public data.
+
+The launch command does not set `appendfsync`, so Redis uses its default AOF policy of fsync every second; an abrupt host or storage failure can lose recent writes. See the [Redis persistence documentation](https://redis.io/docs/latest/management/persistence/).
+
+The named volume survives container recreation but not loss of the Docker host or volume. There is currently no scheduled/off-host backup and no automated restore procedure. The app-data recovery path is therefore not production-ready; a backup workflow must be designed and restore-tested before the URLs are considered valuable.
+
 ---
 
 ## 73. Docker Security

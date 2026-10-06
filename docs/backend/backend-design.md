@@ -261,19 +261,17 @@ Configuration must come from environment variables or a configuration file loade
 
 Use Pydantic Settings or an equivalent typed configuration system.
 
-Potential configuration values:
-
-    APP_ENV=development
-    APP_HOST=0.0.0.0
-    APP_PORT=8000
+The values currently supported by `backend/app/core/config.py` are:
 
     REDIS_HOST=redis
     REDIS_PORT=6379
     REDIS_DB=0
-
     BASE_URL=http://localhost:8000
-
     LOG_LEVEL=INFO
+    CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+    MAX_BODY_BYTES=32768
+
+Uvicorn bind host and port are set by the Docker command or the local run command; they are not read from application settings.
 
 Configuration requirements:
 

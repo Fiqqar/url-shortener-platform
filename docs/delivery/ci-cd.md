@@ -42,7 +42,7 @@ Suggested workflows:
 
 The exact number of workflows may be consolidated if doing so improves maintainability.
 
-The workflows currently implemented in this repository are `backend-ci.yml`, `frontend-ci.yml`, `terraform-ci.yml`, `docker-ci.yml`, and `monitoring-ci.yml`, which validates the Prometheus and Grafana configuration under `monitoring/`.
+The repository has seven workflows: `backend-ci.yml`, `frontend-ci.yml`, `terraform-ci.yml`, `docker-ci.yml`, `monitoring-ci.yml`, `loadtest-ci.yml`, and `release.yml`. On a `v*` tag, `release.yml` first reruns backend lint/tests/pip-audit and frontend typecheck/tests/build/npm-audit for that exact tagged commit, then builds and scans both images before publishing. Set the repository variable `VITE_API_BASE_URL` to the public API origin for a deployable frontend bundle; if unset, the release frontend defaults to `http://localhost:8000`.
 
 Do not create separate workflows merely to increase the apparent number of CI/CD components.
 
