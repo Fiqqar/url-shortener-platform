@@ -7,9 +7,22 @@ def get_client() -> redis.Redis | None:
     return _client
 
 
-async def init_redis(host: str, port: int, db: int) -> redis.Redis:
+async def init_redis(
+    host: str,
+    port: int,
+    db: int,
+    socket_connect_timeout: float = 5.0,
+    socket_timeout: float = 5.0,
+) -> redis.Redis:
     global _client
-    _client = redis.Redis(host=host, port=port, db=db, decode_responses=True)
+    _client = redis.Redis(
+        host=host,
+        port=port,
+        db=db,
+        decode_responses=True,
+        socket_connect_timeout=socket_connect_timeout,
+        socket_timeout=socket_timeout,
+    )
     await _client.ping()
     return _client
 

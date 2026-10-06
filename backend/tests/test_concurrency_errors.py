@@ -17,6 +17,24 @@ async def test_parallel_creates_yield_no_duplicate_codes(test_redis):
 
 
 @pytest.mark.asyncio
+async def test_redis_unreachable_init_fails_fast():
+    try:
+        with pytest.raises(Exception):
+            await asyncio.wait_for(
+                redis_manager.init_redis(
+                    "10.255.255.1",
+                    6379,
+                    0,
+                    socket_connect_timeout=1.0,
+                    socket_timeout=1.0,
+                ),
+                timeout=15,
+            )
+    finally:
+        redis_manager._client = None
+
+
+@pytest.mark.asyncio
 async def test_redis_down_dependency_raises_503():
     redis_manager._client = None
     try:
