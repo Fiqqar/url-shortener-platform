@@ -197,6 +197,6 @@ Read ONLY the doc that matches the current task. Never load all docs.
 - [x] Milestone 7: Alertmanager detects meaningful failures.
 - [x] Milestone 8: Locust validates baseline and stress behavior.
 - [x] Milestone 9: Failure injection and recovery are verified.
-- [ ] Milestone 10: Security and release validation are complete.
+- [x] Milestone 10: Security and release validation are complete.
 
 Update this when a milestone is done.
