@@ -20,7 +20,7 @@ to the pool (bounded at 50) to keep the working set realistic.
 import os
 import random
 
-from locust import HttpUser, between, task # ignore[import-untyped]
+from locust import HttpUser, between, task  # type: ignore[import-untyped]
 
 DEFAULT_HOST = os.environ.get("LOCUST_HOST", "http://localhost:8000")
 
