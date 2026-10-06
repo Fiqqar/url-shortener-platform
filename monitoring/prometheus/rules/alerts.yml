@@ -1,0 +1,57 @@
+groups:
+  - name: url-shortener-alerts
+    interval: 15s
+    rules:
+      - alert: BackendDown
+        expr: up{job="url-shortener-backend"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: url-shortener-backend
+          environment: local
+        annotations:
+          summary: "Backend unavailable (local)"
+          description: "Prometheus cannot scrape url-shortener-backend for 30s. Check `docker compose ps` and `docker compose logs backend --tail 50`."
+
+      - alert: HighErrorRate
+        # Local learning threshold: >5% 5xx over 5m, sustained 2m.
+        # Production should tune from baseline traffic (see docs/observability/alerting.md).
+        expr: |
+          100 * sum(rate(http_requests_total{status="5xx"}[5m]))
+          / clamp_min(sum(rate(http_requests_total[5m])), 0.000000001) > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: url-shortener-backend
+          environment: local
+        annotations:
+          summary: "High 5xx error rate (local)"
+          description: "5xx share >5% for 2m. Check backend logs and /metrics http_requests_total."
+
+      - alert: HighLatency
+        # Local learning threshold: p95 >0.5s over 5m, sustained 2m.
+        # Configurable; tune from baseline before non-local use.
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(http_request_duration_highr_seconds_bucket[5m]))) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          service: url-shortener-backend
+          environment: local
+        annotations:
+          summary: "High p95 latency (local)"
+          description: "p95 latency >0.5s for 2m. Check Grafana P95/P99 panels and backend/Redis health."
+
+      - alert: RedisDown
+        # Fires on sustained Redis client errors from the app.
+        # Covers Redis unavailable via url_shortener_redis_errors_total{operation}.
+        expr: |
+          sum(rate(url_shortener_redis_errors_total[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: url-shortener-backend
+          environment: local
+        annotations:
+          summary: "Redis dependency failing (local)"
+          description: "Redis error rate >0 for 1m. Check `docker compose ps`, redis health, and backend /ready."
