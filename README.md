@@ -21,9 +21,9 @@ Prometheus and Grafana run through Compose and bind to localhost only.
 docker compose up -d prometheus grafana   # or: make monitoring-up
 ~~~
 
-- Prometheus: http://localhost:9090 (scrape target health at http://localhost:9090/targets, alerts at http://localhost:9090/alerts)
-- Alertmanager: http://localhost:9093 (alerts at http://localhost:9093/api/v2/alerts)
-- Grafana: http://localhost:3001; local default login `admin` / `admin` (change it for anything non-local)
+- Prometheus: <http://localhost:9090> (scrape target health at <http://localhost:9090/targets>, alerts at <http://localhost:9090/alerts>)
+- Alertmanager: <http://localhost:9093> (alerts at <http://localhost:9093/api/v2/alerts>)
+- Grafana: <http://localhost:3001>; local default login `admin` / `admin` (change it for anything non-local)
 - Dashboard "URL Shortener Platform" is provisioned from the repository, so the committed file is the source of truth
 
 The dashboard covers request and error rate, p50/p95/p99 latency, redirect, URL creation, and analytics rates, Redis and application errors, scrape target health, and process memory. The Redis and application error panels stay empty until an error actually occurs.
