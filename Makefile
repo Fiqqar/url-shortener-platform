@@ -63,7 +63,7 @@ ps:
 	docker compose ps
 
 monitoring-up:
-	docker compose up -d prometheus grafana
+	docker compose up -d prometheus alertmanager grafana
 
 tf-fmt:
 	powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 tf-fmt

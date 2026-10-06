@@ -1,3 +1,9 @@
 node_modules
 dist
 .git
+.env
+.env.*
+tests
+coverage
+*.test.ts
+*.spec.ts
