@@ -1,0 +1,70 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Derive names
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          echo "OWNER=${OWNER}" >> "${GITHUB_ENV}"
+          echo "VERSION=${GITHUB_REF_NAME}" >> "${GITHUB_ENV}"
+          echo "SHA_SHORT=${SHA_SHORT}" >> "${GITHUB_ENV}"
+
+      - name: Build backend image
+        run: docker build --pull -t "ghcr.io/${OWNER}/url-shortener-backend:${VERSION}" backend
+
+      - name: Build frontend image
+        run: docker build --pull -t "ghcr.io/${OWNER}/url-shortener-frontend:${VERSION}" frontend
+
+      - name: Trivy scan backend
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/${{ env.OWNER }}/url-shortener-backend:${{ env.VERSION }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Trivy scan frontend
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/${{ env.OWNER }}/url-shortener-frontend:${{ env.VERSION }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push images
+        run: |
+          for IMG in url-shortener-backend url-shortener-frontend; do
+            docker tag "ghcr.io/${OWNER}/${IMG}:${VERSION}" "ghcr.io/${OWNER}/${IMG}:${VERSION}-${SHA_SHORT}"
+            docker push "ghcr.io/${OWNER}/${IMG}:${VERSION}"
+            docker push "ghcr.io/${OWNER}/${IMG}:${VERSION}-${SHA_SHORT}"
+          done
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${VERSION}" --title "${VERSION}" --target "${GITHUB_SHA}" --notes "Images: ghcr.io/${OWNER}/url-shortener-backend:${VERSION} and ghcr.io/${OWNER}/url-shortener-frontend:${VERSION} (plus ${VERSION}-${SHA_SHORT} tags). Built from ${GITHUB_SHA} after CI verification; Trivy HIGH/CRITICAL gate passed."
