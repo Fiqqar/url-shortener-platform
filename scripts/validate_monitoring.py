@@ -20,10 +20,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 BACKEND_JOB = "url-shortener-backend"
 BACKEND_TARGET = "backend:8000"
