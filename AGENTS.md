@@ -195,7 +195,7 @@ Read ONLY the doc that matches the current task. Never load all docs.
 - [x] Milestone 5: CI validates code, tests, security, containers, and infrastructure.
 - [x] Milestone 6: Prometheus and Grafana provide meaningful telemetry.
 - [x] Milestone 7: Alertmanager detects meaningful failures.
-- [ ] Milestone 8: Locust validates baseline and stress behavior.
+- [x] Milestone 8: Locust validates baseline and stress behavior.
 - [ ] Milestone 9: Failure injection and recovery are verified.
 - [ ] Milestone 10: Security and release validation are complete.
 
