@@ -1,0 +1,31 @@
+global:
+  # How long to wait before sending a notification about a resolved alert.
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ["alertname", "service", "environment"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    # Local learning: warning and critical go to the same test receiver.
+    # Production may split critical to a more urgent destination.
+    # Never commit production URLs, tokens, or passwords here.
+    - matchers:
+        - severity = critical
+      receiver: default
+      continue: false
+    - matchers:
+        - severity = warning
+      receiver: default
+      continue: false
+
+receivers:
+  - name: default
+    webhook_configs:
+      # Test destination only. No real notification is sent.
+      # View firing/resolved state in Alertmanager UI at http://localhost:9093
+      # and in Prometheus UI at http://localhost:9090/alerts.
+      - url: http://localhost:5149/webhook
+        send_resolved: true
