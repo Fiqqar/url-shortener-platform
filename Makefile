@@ -1,14 +1,35 @@
-.PHONY: install lint test cov run redis-up redis-down docker-build up down logs ps monitoring-up tf-fmt tf-init tf-validate tf-plan tf-apply tf-destroy
+.PHONY: install dev backend frontend lint format test test-backend test-frontend load-test cov run redis-up redis-down docker-build docker-up docker-down up down logs ps monitoring-up tf-fmt tf-init tf-validate tf-plan tf-apply tf-destroy
 
 install:
 	py -3.13 -m venv backend/.venv
 	backend/.venv/Scripts/python -m pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+	cd frontend && npm install
+
+dev:
+	docker compose up --build
+
+backend:
+	cd backend && .venv/Scripts/python -m uvicorn app.main:app --reload --port 8000
+
+frontend:
+	cd frontend && npm run dev
 
 lint:
 	backend/.venv/Scripts/python -m ruff check backend
 
-test:
+format:
+	backend/.venv/Scripts/python -m ruff format backend
+
+test: test-backend test-frontend
+
+test-backend:
 	backend/.venv/Scripts/python -m pytest backend/tests -q
+
+test-frontend:
+	cd frontend && npm test -- --run
+
+load-test:
+	cd loadtest && locust -f locustfile.py
 
 cov:
 	backend/.venv/Scripts/python -m pytest backend/tests -q --cov=app --cov-report=term-missing
@@ -24,6 +45,10 @@ redis-down:
 
 docker-build:
 	docker build -t url-shortener-backend:dev backend
+
+docker-up: up
+
+docker-down: down
 
 up:
 	docker compose up -d --build
