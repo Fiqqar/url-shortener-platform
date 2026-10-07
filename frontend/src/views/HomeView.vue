@@ -15,15 +15,17 @@ async function onSubmit() {
 </script>
 
 <template>
-  <main>
+  <main class="page">
     <h1>URL Shortener</h1>
-    <UrlForm
-      v-model="s.inputUrl.value"
-      :loading="s.loading.value"
-      :error="s.error.value"
-      @submit="onSubmit"
-    />
-    <p v-if="s.loading.value">Loading…</p>
+    <p class="lede">Paste a long URL, get a short link, copy it and track clicks.</p>
+    <div class="card form-card">
+      <UrlForm
+        v-model="s.inputUrl.value"
+        :loading="s.loading.value"
+        :error="s.error.value"
+        @submit="onSubmit"
+      />
+    </div>
     <ShortUrlResult
       v-if="s.result.value"
       :result="s.result.value"
@@ -31,8 +33,11 @@ async function onSubmit() {
       @copy="s.copyResult()"
     />
     <AnalyticsCard :analytics="s.analytics.value" />
-    <p>
-      <RouterLink to="/analytics">Check analytics by code →</RouterLink>
+    <p class="inline-link">
+      <RouterLink
+        :to="s.result.value ? { path: '/analytics', query: { code: s.result.value.code } } : '/analytics'"
+        >Check analytics by code →</RouterLink
+      >
     </p>
   </main>
 </template>
