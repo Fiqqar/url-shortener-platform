@@ -12,13 +12,18 @@ defineEmits<{
 </script>
 
 <template>
-  <section aria-live="polite">
-    <p>Short URL:</p>
-    <a :href="result.short_url" target="_blank" rel="noopener">{{
+  <section class="card result-hero" aria-live="polite">
+    <p class="result-label">Short URL ready</p>
+    <a class="short-link" :href="result.short_url" target="_blank" rel="noopener">{{
       result.short_url
     }}</a>
-    <p>Target: {{ result.target_url }}</p>
-    <button type="button" @click="$emit('copy')">Copy</button>
-    <span v-if="copied">Copied!</span>
+    <div class="code-row">
+      <code class="code-chip">{{ result.code }}</code>
+    </div>
+    <p class="target-url" :title="result.target_url">Target: {{ result.target_url }}</p>
+    <div class="copy-row">
+      <button type="button" class="secondary" @click="$emit('copy')">Copy</button>
+      <span v-if="copied" class="copied-hint">Copied!</span>
+    </div>
   </section>
 </template>

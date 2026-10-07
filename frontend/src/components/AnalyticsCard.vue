@@ -7,8 +7,11 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="analytics" aria-live="polite">
-    <p>Code: {{ analytics.code }}</p>
-    <p>Clicks: {{ analytics.clicks }}</p>
+  <section class="card analytics-card" aria-live="polite">
+    <div v-if="analytics" class="analytics-rows">
+      <p><span class="k">Code:</span> {{ analytics.code }}</p>
+      <p><span class="k">Clicks:</span> {{ analytics.clicks }}</p>
+    </div>
+    <p v-else class="empty">No analytics yet — create a link above or look up a code.</p>
   </section>
 </template>
