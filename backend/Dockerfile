@@ -23,7 +23,7 @@ COPY app ./app
 # (a no-op for paths that do not exist), drop the pip tooling entirely,
 # and keep only the OS security upgrade.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 zlib1g \
     && rm -rf /var/lib/apt/lists/* \
     && python -c "import glob, os, shutil, site; [(shutil.rmtree(p, ignore_errors=True) if os.path.isdir(p) else os.remove(p)) for sp in site.getsitepackages() for pat in ('msgpack*', 'urllib3*', 'setuptools*', 'pkg_resources*', '*.cdx.json') for p in glob.glob(sp + '/' + pat)]; shutil.rmtree('/usr/local/lib/python3.13/ensurepip', ignore_errors=True)" \
     && pip uninstall -y pip
