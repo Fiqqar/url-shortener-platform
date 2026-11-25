@@ -15,6 +15,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # vue-tsc resolves typescript/lib/tsc, which TypeScript 7 no longer exports.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]
     groups:
       frontend:
         patterns:
