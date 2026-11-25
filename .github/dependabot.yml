@@ -5,18 +5,30 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      backend:
+        patterns:
+          - "*"
 
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      frontend:
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
     directory: /backend
@@ -28,9 +40,17 @@ updates:
       # the next interpreter together. Patch/base-image updates are still allowed.
       - dependency-name: "python"
         versions: [">=3.15"]
+    groups:
+      backend-images:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
     directory: /frontend
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      frontend-images:
+        patterns:
+          - "*"
