@@ -28,12 +28,12 @@ docker compose up -d prometheus alertmanager grafana   # or: make monitoring-up
 
 The dashboard covers request and error rate, p50/p95/p99 latency, redirect, URL creation, and analytics rates, Redis and application errors, scrape target health, and process memory. The Redis and application error panels stay empty until an error actually occurs.
 
-Alerts (`monitoring/prometheus/rules/alerts.yml`): `BackendDown` (critical), `HighErrorRate` (warning, >5% 5xx for 2m), `HighLatency` (warning, p95 >0.5s for 2m), `RedisDown` (critical). Labels stay low-cardinality (`severity`, `service`, `environment`); thresholds are local-learning values, tune from baseline before non-local use.
+Alerts (`monitoring/prometheus/rules/alerts.yml`): `BackendDown` (critical), `HighErrorRate` (warning, >5% 5xx for 2m), `HighClientErrorRate` (warning, >20% 4xx for 2m), `HighLatency` (warning, p95 >0.5s for 2m), `RedisDown` (critical). Labels stay low-cardinality (`severity`, `service`, `environment`); thresholds are local-learning values, tune from baseline before non-local use.
 
 Configuration lives in `monitoring/`:
 
 - `monitoring/prometheus/prometheus.yml` scrapes `backend:8000/metrics` every 15s and sends alerts to `alertmanager:9093`
-- `monitoring/prometheus/rules/alerts.yml` holds the 4 alert rules
+- `monitoring/prometheus/rules/alerts.yml` holds the 5 alert rules
 - `monitoring/alertmanager/alertmanager.yml` routes warning + critical to the local test receiver (no real notifications; view in Alertmanager UI)
 - `monitoring/grafana/provisioning/` provisions the datasource and the dashboard provider
 - `monitoring/grafana/dashboards/url-shortener.json` is the provisioned dashboard

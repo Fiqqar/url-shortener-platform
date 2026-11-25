@@ -28,6 +28,21 @@ groups:
           summary: "High 5xx error rate (local)"
           description: "5xx share >5% for 2m. Check backend logs and /metrics http_requests_total."
 
+      - alert: HighClientErrorRate
+        # Local learning threshold: >20% 4xx over 5m, sustained 2m.
+        # Catches validation abuse / broken clients before they turn into incidents.
+        expr: |
+          100 * sum(rate(http_requests_total{status="4xx"}[5m]))
+          / clamp_min(sum(rate(http_requests_total[5m])), 0.000000001) > 20
+        for: 2m
+        labels:
+          severity: warning
+          service: url-shortener-backend
+          environment: local
+        annotations:
+          summary: "High 4xx error rate (local)"
+          description: "4xx share >20% for 2m. Check request validation failures and client traffic."
+
       - alert: HighLatency
         # Local learning threshold: p95 >0.5s over 5m, sustained 2m.
         # Configurable; tune from baseline before non-local use.
