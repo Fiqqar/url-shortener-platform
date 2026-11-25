@@ -80,6 +80,8 @@ Container-related changes should trigger:
 
 The final workflow structure may use path filters to avoid unrelated jobs.
 
+The `main` branch is protected: pull requests must pass the `backend`, `frontend`, and `docker` checks with an up-to-date branch. Force pushes and branch deletion are blocked; repository admins can bypass for config-only changes that trigger no workflows.
+
 ---
 
 ## 92. Backend CI

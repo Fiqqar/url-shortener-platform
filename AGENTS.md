@@ -93,7 +93,7 @@ Run from repo root in PowerShell unless noted.
 - make backend = cd backend; .venv/Scripts/python -m uvicorn app.main:app --reload --port 8000
 - make frontend = cd frontend; npm run dev
 - Backend venv (PowerShell):
-  cd backend; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt
+  cd backend; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt -r requirements-dev.txt
 - Frontend install: cd frontend; npm install
 
 ### Build

@@ -48,6 +48,8 @@ Group low-risk dependency updates where appropriate.
 
 Security updates should remain visible and should not be hidden by aggressive grouping.
 
+This repository groups version updates per ecosystem (pip, npm, GitHub Actions, and both Docker directories). Security updates stay ungrouped because `groups` defaults to version updates only. The backend Python image ignores versions `>=3.15` until CI and local tooling move to a new interpreter together; patch/base-image refreshes below 3.15 are still accepted.
+
 ## 232. GitHub Actions Security
 
 GitHub Actions workflows must use least privilege.
