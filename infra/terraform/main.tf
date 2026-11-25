@@ -120,7 +120,7 @@ resource "docker_container" "frontend" {
 
   ports {
     ip       = "127.0.0.1"
-    internal = 80
+    internal = 8080
     external = var.frontend_port
   }
 }
