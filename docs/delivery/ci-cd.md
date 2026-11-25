@@ -78,7 +78,7 @@ Container-related changes should trigger:
 - Docker build
 - Trivy scan
 
-The final workflow structure may use path filters to avoid unrelated jobs.
+The backend, frontend, and Docker workflows intentionally have no `paths` filters: branch protection requires all three checks on every pull request, so each one must run even for a change in only one area.
 
 The `main` branch is protected: pull requests must pass the `backend`, `frontend`, and `docker` checks with an up-to-date branch. Force pushes and branch deletion are blocked; repository admins can bypass for config-only changes that trigger no workflows.
 

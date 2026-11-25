@@ -3,17 +3,7 @@ name: docker-ci
 on:
   push:
     branches: [main]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'docker-compose.yml'
-      - '.github/workflows/docker-ci.yml'
   pull_request:
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'docker-compose.yml'
-      - '.github/workflows/docker-ci.yml'
 
 permissions:
   contents: read
