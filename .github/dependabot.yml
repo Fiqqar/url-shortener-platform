@@ -23,6 +23,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Keep the runtime on Python 3.14 until CI and local tooling move to
+      # the next interpreter together. Patch/base-image updates are still allowed.
+      - dependency-name: "python"
+        versions: [">=3.15"]
 
   - package-ecosystem: docker
     directory: /frontend
