@@ -124,9 +124,9 @@ services:
   grafana:
     image: grafana/grafana:13.2.3
     environment:
-      # Local learning defaults; set real credentials before any non-local deployment.
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      # Local learning defaults; override from .env (or a secret store) outside localhost.
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
