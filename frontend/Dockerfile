@@ -17,5 +17,11 @@ RUN npm run build
 FROM nginx:1.31-alpine-slim AS runtime
 RUN apk upgrade --no-cache
 COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
+# Listen on an unprivileged port so nginx can run as the image's nginx user.
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN sed -i 's|^pid .*|pid /tmp/nginx.pid;|' /etc/nginx/nginx.conf \
+    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx
+USER nginx
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
