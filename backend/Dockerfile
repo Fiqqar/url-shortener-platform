@@ -25,7 +25,7 @@ COPY app ./app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 zlib1g \
     && rm -rf /var/lib/apt/lists/* \
-    && python -c "import glob, os, shutil, site; [(shutil.rmtree(p, ignore_errors=True) if os.path.isdir(p) else os.remove(p)) for sp in site.getsitepackages() for pat in ('msgpack*', 'urllib3*', 'setuptools*', 'pkg_resources*', '*.cdx.json') for p in glob.glob(sp + '/' + pat)]; shutil.rmtree('/usr/local/lib/python3.13/ensurepip', ignore_errors=True)" \
+    && python -c "import glob, os, shutil, site, sysconfig; [(shutil.rmtree(p, ignore_errors=True) if os.path.isdir(p) else os.remove(p)) for sp in site.getsitepackages() for pat in ('msgpack*', 'urllib3*', 'setuptools*', 'pkg_resources*', '*.cdx.json') for p in glob.glob(sp + '/' + pat)]; shutil.rmtree(os.path.join(sysconfig.get_path('stdlib'), 'ensurepip'), ignore_errors=True)" \
     && pip uninstall -y pip
 
 RUN useradd --create-home appuser \
