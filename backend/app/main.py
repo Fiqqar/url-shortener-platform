@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from redis.exceptions import RedisError
@@ -35,6 +36,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     configure_logging(settings.log_level)
     app = FastAPI(title="url-shortener-platform", lifespan=lifespan)
+    allowed_hosts = [h.strip() for h in settings.allowed_hosts.split(",") if h.strip()]
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
     app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.max_body_bytes)
     app.add_middleware(RequestIDMiddleware)
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
@@ -50,6 +53,8 @@ def create_app() -> FastAPI:
     async def security_headers(request: Request, call_next):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response
 
     @app.exception_handler(URLNotFoundError)
