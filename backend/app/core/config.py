@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:8000"
     log_level: str = "INFO"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    allowed_hosts: str = "localhost,127.0.0.1,test,testserver,backend"
     max_body_bytes: int = Field(default=32768, gt=0)
 
 
