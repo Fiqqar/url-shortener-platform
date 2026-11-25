@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 import uuid
 
@@ -9,10 +10,16 @@ from app.core.request_context import request_id_context
 
 logger = logging.getLogger(__name__)
 
+SAFE_REQUEST_ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
+        supplied = request.headers.get("X-Request-ID")
+        if supplied and SAFE_REQUEST_ID.fullmatch(supplied):
+            request_id = supplied
+        else:
+            request_id = uuid.uuid4().hex[:12]
         request.state.request_id = request_id
         start = time.perf_counter()
         token = request_id_context.set(request_id)
